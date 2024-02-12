@@ -5,6 +5,9 @@ import { Table, Column, Model, PrimaryKey, AutoIncrement } from 'sequelize-types
     timestamps: false,
 })
 export class Application extends Model<Application> {
+    static find(arg0: { where: { rut: string; }; }) {
+        throw new Error('Method not implemented.');
+    }
 
     @PrimaryKey
     @AutoIncrement
@@ -34,4 +37,10 @@ export class Application extends Model<Application> {
 
     @Column({ defaultValue: false })
     pre_aprobacion: boolean;
+
+    @Column
+    observacion: string;
+
+    @Column
+    fecha_postulacion: Date;
 }
