@@ -7,19 +7,19 @@
 #router.get("/api/requisitos", postulacionesRoutes);
 
 // ADMINISTRADOR
-router.get("/api/adminin", adminRoutes);
-router.get("/api/adminin/:rut", adminRoutes);
-router.put("/api/adminin/:rut", adminRoutes);
-router.patch("/api/adminin/seleccionar",adminRoutes);
-router.post("/api/adminin/requisitos", adminRoutes);
-router.delete("/api/adminin/requisito/:id", adminRoutes);
-router.post("/api/create-pdf",adminRoutes);
+#router.get("/api/adminin", adminRoutes);
+#router.get("/api/adminin/:rut", adminRoutes);
+#router.put("/api/adminin/:rut", adminRoutes);
+#router.patch("/api/adminin/seleccionar",adminRoutes);
+#router.post("/api/adminin/requisitos", adminRoutes);
+#router.delete("/api/adminin/requisito/:id", adminRoutes);
+#router.post("/api/create-pdf",adminRoutes);
 
 // LOGIN
-router.post("/api/login", login);
-router.post("/api/register-profesor", sendEmail);
-router.post("/api/restablecer", restablecerPassword);
-router.patch("/api/cambiar-contrasena",cambiarPassword);
+#router.post("/api/login", login);
+#router.post("/api/register-profesor", sendEmail);
+#router.post("/api/restablecer", restablecerPassword);
+#router.patch("/api/cambiar-contrasena",cambiarPassword);
 
 
 

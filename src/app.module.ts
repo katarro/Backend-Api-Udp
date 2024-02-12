@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ApplicationsModule } from './postulations/applications.module';
+import { AdministratorModule } from './administrator/administrator.module';
+import { AuthserviceModule } from './authService/authservice.module';
 
 @Module({
   imports: [
@@ -23,7 +25,9 @@ import { ApplicationsModule } from './postulations/applications.module';
       },
     }),
     // Agregar los modulos de otros servicios
-    ApplicationsModule
+    ApplicationsModule,
+    AdministratorModule,
+    AuthserviceModule
   ],
   controllers: [],
   providers: [],
