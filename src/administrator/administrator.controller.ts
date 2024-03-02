@@ -8,12 +8,65 @@ export class AdministratorController {
 
     constructor(
         private readonly administratorService: AdministratorService,
+        private readonly applicationsService: ApplicationsService
     ) { }
+
+    @Patch('asignar-profesor')
+    async assingProfessor(
+        @Body('profesorId') profesorId: number,
+        @Body('rutPostulante') rutPostulante: string,
+        @Body('asignatura') asignatura: number,
+        @Body('estado') estado: string,
+    ){
+        
+        try {
+            const postulant = await this.administratorService.assingProfessor(profesorId, rutPostulante, asignatura, estado);
+            return { mensaje: "Selección actualizada con éxito", postulant };
+        } catch (error) {
+            console.error(error);
+            throw new HttpException({ message: 'Error updating postulant selection', error }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @Patch('seleccionar')
+    async updatePostulantSelection(
+        @Body('rut') rut: string,
+        @Body('estado') estado: string
+    ) {
+        try {
+            const postulant = await this.administratorService.updateSelection(rut, estado);
+            return { mensaje: "Selección actualizada con éxito", postulant };
+        } catch (error) {
+            console.error(error);
+            throw new HttpException({ message: 'Error updating postulant selection', error }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Get('periodo')
+    async getPeriodo() {
+        try {
+            return await this.administratorService.getPeriodo();
+        } catch (error) {
+            console.error(error);
+            throw new HttpException({ message: 'Error getting periodo', error }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Get('profesores')
+    async getAllProfessors() {
+        try {
+            return await this.administratorService.getAllProfessors();
+        } catch (error) {
+            console.error(error);
+            throw new HttpException({ message: 'Error getting professors', error }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @Get()
     async getAll() {
         try {
-            return await this.administratorService.getAll();
+            return await this.administratorService.getAllApplications();
         } catch (error) {
             console.error(error);
             throw new HttpException({ message: 'Error getting administrators', error }, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -46,19 +99,7 @@ export class AdministratorController {
 
     }
 
-    @Patch('seleccionar')
-    async updatePostulantSelection(
-        @Body('rut') rut: string,
-        @Body('pre_aprobacion') pre_aprobacion: boolean
-    ) {
-        try {
-            const postulant = await this.administratorService.updateSelection(rut, pre_aprobacion);
-            return { mensaje: "Selección actualizada con éxito", postulant };
-        } catch (error) {
-            console.error(error);
-            throw new HttpException({ message: 'Error updating postulant selection', error }, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+   
 
     @Post('requisitos')
     async createRequirementHandler(@Body('requisito') requisito: string) {
@@ -68,6 +109,15 @@ export class AdministratorController {
         } catch (error) {
             console.error(error);
             throw new HttpException({ message: 'Error creating requirement', error: error.message }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @Get('requisitos')
+    async getRequirementsHandler() {
+        try {
+            return await this.administratorService.getRequirements();
+        } catch (error) {
+            console.error(error);
+            throw new HttpException({ message: 'Error getting requirements', error: error.message }, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -94,4 +144,6 @@ export class AdministratorController {
             res.status(500).send('Error al generar el PDF');
         }
     }
+
+
 }

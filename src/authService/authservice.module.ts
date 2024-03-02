@@ -14,7 +14,8 @@ import { ConfigModule } from '@nestjs/config';
         ConfigModule.forRoot(),
         SequelizeModule.forFeature([Administrator, Application, Requirement, Professor]),
         JwtModule.register({
-            secret: process.env.SECRET_KEY,
+            // secret: process.env.SECRET_KEY,
+            secret: 'secret',
             signOptions: { expiresIn: '1h' },
         }),
         ConfigModule

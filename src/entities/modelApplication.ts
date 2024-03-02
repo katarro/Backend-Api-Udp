@@ -1,46 +1,61 @@
-import { Table, Column, Model, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
-
+import {
+    Model,
+    Table,
+    Column,
+    DataType,
+    PrimaryKey,
+    AutoIncrement,
+    ForeignKey,
+    BelongsTo
+} from 'sequelize-typescript';
+import { Carrera } from './modelCarrera'; 
+import { Asignatura } from './modelAsignatura'; 
+import { Professor } from './modelProfessor'; 
+import { Periodo } from './modelPeriodo'; 
 @Table({
-    tableName: 'postulantes',
+    tableName: 'postulacion',
     timestamps: false,
 })
 export class Application extends Model<Application> {
-    static find(arg0: { where: { rut: string; }; }) {
-        throw new Error('Method not implemented.');
-    }
-
     @PrimaryKey
     @AutoIncrement
     @Column
-    id: number;
-
+    id_postulante: number;
+  
     @Column
     nombre: string;
-
+  
     @Column
     rut: string;
-
+  
     @Column
     correo: string;
-
+  
     @Column
-    codigo_carrera: number;
-
-    @Column
-    asignatura: string;
-
-    @Column
-    nota:number;
-
-    @Column({ defaultValue: 'Pendiente' })
     estado: string;
-
-    @Column({ defaultValue: false })
-    pre_aprobacion: boolean;
-
-    @Column
-    observacion: string;
-
+  
     @Column
     fecha_postulacion: Date;
+  
+    @Column
+    fecha_asignacion: Date;
+  
+    @Column
+    fecha_cambio_estado: Date;
+  
+    @ForeignKey(() => Carrera)
+    @Column
+    id_carrera: number;
+  
+    @ForeignKey(() => Asignatura)
+    @Column
+    id_asignatura: number;
+  
+    @ForeignKey(() => Professor)
+    @Column
+    id_profesor: number;
+  
+    @ForeignKey(() => Periodo)
+    @Column
+    id_periodo: number;
 }

@@ -4,18 +4,58 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Application } from 'src/entities/modelApplication';
 import { Requirement } from 'src/entities/modelRequirements';
 import * as PDFDocument from 'pdfkit';
-
+import { Professor } from 'src/entities/modelProfessor';
+import { create } from 'domain';
+import { CreateApplicationDto, EstadoPostulacion } from 'src/entities/CreateApplication';
+import { Periodo } from 'src/entities/modelPeriodo';
 @Injectable()
 export class AdministratorService {
 
     constructor(
         @InjectModel(Administrator) private administratorModel: typeof Administrator,
         @InjectModel(Application) private application: typeof Application,
-        @InjectModel(Requirement) private requirement: typeof Requirement
+        @InjectModel(Requirement) private requirement: typeof Requirement,
+        @InjectModel(Professor) private professorModel: typeof Professor,
+        @InjectModel(Periodo) private periodoModel: typeof Periodo,
     ) { }
 
-    async getAll(): Promise<Administrator[]> {
-        return await this.administratorModel.findAll();
+    async assingProfessor(profesorId: number, rutPostulante: string, asignatura: number, estado: string): Promise<Application>{
+
+        
+        const postulante = await this.application.findOne({
+                where: {
+                    rut: rutPostulante,
+                    id_asignatura: asignatura,
+                },
+            });
+
+        if (!postulante) {throw new NotFoundException(`Postulante con RUT ${rutPostulante} no encontrado.`);}
+
+        postulante.estado = estado;
+        postulante.id_profesor = profesorId;
+        postulante.fecha_asignacion = new Date();
+        postulante.fecha_cambio_estado = new Date();
+
+        await postulante.save();
+        return postulante;
+
+    }
+
+    async getPeriodo() {
+        return await this.periodoModel.findAll();
+    }
+
+    async getRequirements(): Promise<Requirement[]> {
+        return await this.requirement.findAll();
+    }
+
+    async getAllProfessors(): Promise<Administrator[]> {
+        return await this.professorModel.findAll();
+    }
+
+    
+    async getAllApplications(): Promise<Application[]> {
+        return await this.application.findAll();
     }
 
     async updateState(rut: string, estado: string, observacion: string): Promise<Application> {
@@ -26,7 +66,6 @@ export class AdministratorService {
         }
 
         postulante.estado = estado;
-        postulante.observacion = observacion;
         await postulante.save();
 
         // Aquí deberías llamar a tu función de envío de correo electrónico, por ejemplo:
@@ -43,14 +82,14 @@ export class AdministratorService {
         }
     }
 
-    async updateSelection(rut: string, pre_aprobacion: boolean): Promise<Application> {
+    async updateSelection(rut: string, estado: string): Promise<Application> {
         const postulant = await this.application.findOne({ where: { rut } });
         if (!postulant) {
             console.log(`No se encontró un postulante con el RUT: ${rut}`);
             throw new NotFoundException(`Postulante con RUT ${rut} no encontrado.`);
         }
+        postulant.estado = estado;
 
-        postulant.pre_aprobacion = pre_aprobacion;
         await postulant.save();
         return postulant;
     }
@@ -78,51 +117,41 @@ export class AdministratorService {
 
     async generatePdf(): Promise<Buffer> {
         const postulantes = await this.application.findAll({
-            where: { pre_aprobacion: true },
+            include: ['carrera', 'asignatura'], // Asegúrate de que estas asociaciones estén definidas en tu modelo
+            where: { estado: EstadoPostulacion.Asignado },
         });
 
         const doc = new PDFDocument();
-        const buffers = [];
+        const buffers: Buffer[] = [];
         doc.on('data', buffers.push.bind(buffers));
-        doc.on('end', () => {
-            let pdfData = Buffer.concat(buffers);
-            return pdfData;
-        });
+        doc.on('end', () => {});
 
         postulantes.forEach((postulante) => {
-            // Asegúrate de cambiar 'tu_columna' por el nombre real de la columna que deseas imprimir
-            var evaluacionFinal;
-            var carrera;
-            postulante.dataValues.pre_aprobacion ? (evaluacionFinal = "Si") : "No";
+            let evaluacionFinal = postulante.estado;
+            // Suponiendo que cada asignatura tiene una propiedad 'nombre' que quieres mostrar
+            let nombreAsignatura = postulante.estado;
+            let nombreCarrera = postulante.id_carrera.toString();
 
-            if (postulante.dataValues.codigo_carrera === 21030) {
-                carrera = " Ingeniería en Informática";
-            }
-            if (postulante.dataValues.codigo_carrera === 21041) {
-                carrera = " Ingeniería Civil en Computación mención Informática";
-            }
-            if (postulante.dataValues.codigo_carrera === 21049) {
-                carrera = " Ingeniería Civil en Ciencias de Datos";
-            }
-
-            doc.text("Nombre: " + postulante.dataValues.nombre);
-            doc.text("Rut: " + postulante.dataValues.rut);
-            doc.text("Asignatura: " + postulante.dataValues.asignatura);
-            doc.text("Evaluación de Profesor: " + evaluacionFinal);
-            doc.text(
-                "Carrera: " + postulante.dataValues.codigo_carrera + "-" + carrera
-            );
+            doc.text(`Nombre: ${postulante.nombre}`);
+            doc.text(`Rut: ${postulante.rut}`);
+            doc.text(`Correo: ${postulante.correo}`);
+            doc.text(`Estado: ${postulante.estado}`);
+            doc.text(`Fecha de postulación: ${postulante.fecha_postulacion.toDateString()}`);
+            doc.text(`Asignatura: ${nombreAsignatura}`);
+            doc.text(`Evaluación de Profesor: ${evaluacionFinal}`);
+            doc.text(`Carrera: ${nombreCarrera}`);
 
             doc.moveDown();
         });
 
         doc.end();
+
         return new Promise((resolve, reject) => {
             doc.on('end', () => {
                 const pdfBuffer = Buffer.concat(buffers);
                 resolve(pdfBuffer);
             });
+            doc.on('error', reject); // Manejar posibles errores
         });
     }
-
 }

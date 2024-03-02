@@ -22,6 +22,7 @@ export class AuthserviceService {
         sgMail.setApiKey(this.configService.get<string>('API_EMAIL')); // Usa la clave API de SendGrid desde las variables de entorno
     }
 
+ 
     async validateUser(email: string, pass: string): Promise<any> {
 
         const profesor = await this.professorModel.findOne({ where: { correo: email } });
@@ -46,6 +47,7 @@ export class AuthserviceService {
     }
 
     async sendEmail(correo: string, nombre: string, contrasena: string) {
+
         const msg = {
             to: correo,
             from: 'rcastillor@utem.cl',
@@ -62,20 +64,21 @@ export class AuthserviceService {
     }
 
     async registerProfessor(nombre: string, correo: string): Promise<string> {
-        const contrasena = crypto.randomBytes(3).toString('hex');
+        // const contrasena = crypto.randomBytes(3).toString('hex');
+        const contrasena = '123';
         const contrasenaHash = await bcrypt.hash(contrasena, 10);
 
         try {
+            // await this.sendEmail(correo, nombre, contrasena);
             await this.professorModel.create({
                 nombre: nombre,
                 correo: correo,
                 contrasena: contrasenaHash,
             });
 
-            await this.sendEmail(correo, nombre, contrasena); // Envía el correo después de crear el profesor
             return 'Usuario registrado y correo enviado';
         } catch (error) {
-            console.error('Error al registrar el profesor:', error);
+            console.error('Error: ', error);
             throw new Error('Error al registrar el profesor');
         }
     }

@@ -5,14 +5,16 @@ import { AdministratorController } from './administrator.controller';
 import { AdministratorService } from './administrator.service';
 import { Application } from 'src/entities/modelApplication';
 import { Requirement } from 'src/entities/modelRequirements';
+import { ApplicationsService } from 'src/postulations/applications.service';
+import { Professor } from 'src/entities/modelProfessor';
+import { Periodo } from 'src/entities/modelPeriodo';
 
 @Module({
     imports: [
-        SequelizeModule.forFeature([Administrator]),
-        SequelizeModule.forFeature([Application]),
-        SequelizeModule.forFeature([Requirement]),
+        SequelizeModule.forFeature([Administrator, Application, Requirement, Professor, Periodo]),
     ],
+
     controllers: [AdministratorController],
-    providers: [AdministratorService],
+    providers: [AdministratorService, ApplicationsService],
 })
 export class AdministratorModule { }

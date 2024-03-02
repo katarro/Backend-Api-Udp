@@ -14,13 +14,20 @@ export class ApplicationsController {
         @Body() createApplicationDto: CreateApplicationDto
     ) {
         try {
-            // create es una función que se encuentra en el archivo applications.service.ts
             const application = await this.applicationsService.createApplication(createApplicationDto);
             return { message: 'Application successfully registered', application };
         } catch (error) {
-            throw new HttpException({ message: 'Error registering application', error }, HttpStatus.INTERNAL_SERVER_ERROR);
+            console.error(error);
+
+            if (error instanceof HttpException) {
+                // Re-lanza el mismo error HttpException que el servicio lanzó
+
+                throw error;
+            }
+            throw new HttpException({ message: 'Error registering application', error: error.message }, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @Get('estado/:rut')
     async getStateApplication(@Param('rut') rut: string, @Res() res: Response) {
         try {

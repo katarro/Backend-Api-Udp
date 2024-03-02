@@ -1,28 +1,46 @@
-import { IsNumber, IsString, IsEmail, IsBoolean, IsIn } from 'class-validator';
+import { IsNumber, IsString, IsEmail, IsBoolean, IsDate, IsEnum, IsOptional } from 'class-validator';
+
+export enum EstadoPostulacion {
+    Postulando = 'Postulando',
+    Asignado = 'Asignado a',
+    EvaluadoPositivamente = 'Evaluado Positivamente',
+    EvaluadoNegativamente = 'Evaluado negativamente',
+}
 
 export class CreateApplicationDto {
     @IsString()
-    nombre!: string;
-    
+    readonly nombre: string;
+  
     @IsString()
-    rut!: string;
-    
+    readonly rut: string;
+  
     @IsEmail()
-    correo!: string;
-    
-    @IsNumber()
-    codigo_carrera!: number; // Coincide con el tipo en el modelo Sequelize
-    
+    readonly correo: string;
+  
     @IsString()
-    asignatura!: string;
-    
+    readonly estado: string;
+  
+    @IsDate()
+    readonly fecha_postulacion: Date;
+  
+    @IsOptional()
+    @IsDate()
+    readonly fecha_asignacion?: Date;
+  
+    @IsOptional()
+    @IsDate()
+    readonly fecha_cambio_estado?: Date;
+  
     @IsNumber()
-    nota!: number;
-    
-    @IsString()
-    @IsIn(['Pendiente', 'Rechazado', 'Aprobado'])
-    estado!: 'Pendiente' | 'Rechazado' | 'Aprobado';
-    
-    @IsBoolean()
-    pre_aprobacion!: boolean;
+    readonly id_carrera: number;
+  
+    @IsNumber()
+    readonly id_asignatura: number;
+  
+    @IsOptional()
+    @IsNumber()
+    readonly id_profesor?: number;
+  
+    @IsNumber()
+    readonly id_periodo: number;
 }
