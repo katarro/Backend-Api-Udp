@@ -4,7 +4,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { ApplicationsModule } from './postulations/applications.module';
 import { AdministratorModule } from './administrator/administrator.module';
 import { AuthserviceModule } from './authService/authservice.module';
-
+import { Periodo } from './entities/modelPeriodo';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -27,6 +27,7 @@ import { AuthserviceModule } from './authService/authservice.module';
     // Agregar los modulos de otros servicios
     ApplicationsModule,
     AdministratorModule,
+    Periodo,
     AuthserviceModule
   ],
   controllers: [],

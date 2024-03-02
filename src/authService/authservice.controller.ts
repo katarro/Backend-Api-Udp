@@ -1,5 +1,5 @@
 // AuthController
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Patch, Post, Res } from '@nestjs/common';
 import { Administrator } from '../entities/modelAdministrator';
 import { AuthserviceService } from './authservice.service';
 import { Response } from 'express';
@@ -11,8 +11,10 @@ export class AuthserviceController {
 
     @Post('login')
     async login(@Body() body: { email: string; password: string }, @Res() res: Response) {
+        console.log('login', body)
         try {
             const user = await this.authService.validateUser(body.email, body.password);
+            console.log('user', user)
             if (!user) {
                 return res.status(HttpStatus.UNAUTHORIZED).send('Credenciales incorrectas');
             }
@@ -24,6 +26,7 @@ export class AuthserviceController {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Error en el servidor');
         }
     }
+
 
     @Post('register-profesor')
     async registerProfessor(@Body() body: { nombre: string; correo: string }, @Res() res: Response) {
@@ -51,7 +54,7 @@ export class AuthserviceController {
         }
     }
 
-    @Post('cambiar-contrasena')
+    @Patch('cambiar-contrasena')
     async changePassword(@Body() body: { correo: string; contrasenaActual: string; contrasenaNueva: string }, @Res() res: Response) {
         try {
             const message = await this.authService.changePassword(body.correo, body.contrasenaActual, body.contrasenaNueva);
