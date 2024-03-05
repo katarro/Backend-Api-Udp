@@ -8,6 +8,10 @@ import { Professor } from 'src/entities/modelProfessor';
 import { create } from 'domain';
 import { CreateApplicationDto, EstadoPostulacion } from 'src/entities/CreateApplication';
 import { Periodo } from 'src/entities/modelPeriodo';
+import {Carrera} from '../entities/modelCarrera';
+import {Asignatura} from '../entities/modelAsignatura';
+import { Op } from 'sequelize';
+import Sequelize from 'sequelize'
 @Injectable()
 export class AdministratorService {
 
@@ -17,6 +21,8 @@ export class AdministratorService {
         @InjectModel(Requirement) private requirement: typeof Requirement,
         @InjectModel(Professor) private professorModel: typeof Professor,
         @InjectModel(Periodo) private periodoModel: typeof Periodo,
+        @InjectModel(Carrera) private carreraModel: typeof Carrera,
+        @InjectModel(Asignatura) private asignaturaModel: typeof Asignatura
     ) { }
 
     async assingProfessor(profesorId: number, rutPostulante: string, asignatura: number, estado: string): Promise<Application>{
@@ -82,13 +88,15 @@ export class AdministratorService {
         }
     }
 
-    async updateSelection(rut: string, estado: string): Promise<Application> {
-        const postulant = await this.application.findOne({ where: { rut } });
+    async updateSelection( estado:string, id_postulante: number, id_profesor: null | number): Promise<Application> {
+        const postulant = await this.application.findOne({ where: { id_postulante } });
+
         if (!postulant) {
-            console.log(`No se encontró un postulante con el RUT: ${rut}`);
-            throw new NotFoundException(`Postulante con RUT ${rut} no encontrado.`);
+            console.log(`No se encontró un postulante con el id: ${id_postulante}`);
+            throw new NotFoundException(`Postulante con id ${id_postulante} no encontrado.`);
         }
         postulant.estado = estado;
+        postulant.id_profesor = id_profesor;
 
         await postulant.save();
         return postulant;
@@ -117,8 +125,20 @@ export class AdministratorService {
 
     async generatePdf(): Promise<Buffer> {
         const postulantes = await this.application.findAll({
-            include: ['carrera', 'asignatura'], // Asegúrate de que estas asociaciones estén definidas en tu modelo
-            where: { estado: EstadoPostulacion.Asignado },
+            include: [
+                { model: Carrera, as: 'carrera' },
+                { model: Asignatura, as: 'asignatura' }
+
+                ],
+
+             where: {
+                estado: {
+                  [Op.or]: [
+                    EstadoPostulacion.EvaluadoPositivamente,
+                    EstadoPostulacion.EvaluadoNegativamente
+                  ]
+                }
+            },
         });
 
         const doc = new PDFDocument();
@@ -127,21 +147,36 @@ export class AdministratorService {
         doc.on('end', () => {});
 
         postulantes.forEach((postulante) => {
-            let evaluacionFinal = postulante.estado;
-            // Suponiendo que cada asignatura tiene una propiedad 'nombre' que quieres mostrar
-            let nombreAsignatura = postulante.estado;
-            let nombreCarrera = postulante.id_carrera.toString();
+            let nombre_carrera;
+            let nombre_asignatura;
+            let codigo_carrera = postulante.id_carrera;
+            let codigo_asignatura = postulante.id_asignatura;
+            
+            if(codigo_carrera === 1) nombre_carrera = 'Ingeniería Civil en Computación mención Informática';
+            if(codigo_carrera === 2) nombre_carrera = 'Ingeniería en Informática';
+            if(codigo_carrera === 3) nombre_carrera = 'Ingeniería Civil en Ciencias de Datos';
+
+            if (codigo_asignatura === 1) nombre_asignatura = 'Introducción a la Ingeniería';
+            if (codigo_asignatura === 2) nombre_asignatura = 'Algoritmos y Programación';
+            if (codigo_asignatura === 3) nombre_asignatura = 'Estructura de Datos';
+
+            if (codigo_asignatura === 4) nombre_asignatura = 'Lenguajes de Programación';
+            if (codigo_asignatura === 5) nombre_asignatura = 'Bases de Datos'; 
+            if (codigo_asignatura === 6) nombre_asignatura = 'Sistemas de Información';
+
+
+
 
             doc.text(`Nombre: ${postulante.nombre}`);
             doc.text(`Rut: ${postulante.rut}`);
-            doc.text(`Correo: ${postulante.correo}`);
-            doc.text(`Estado: ${postulante.estado}`);
-            doc.text(`Fecha de postulación: ${postulante.fecha_postulacion.toDateString()}`);
-            doc.text(`Asignatura: ${nombreAsignatura}`);
-            doc.text(`Evaluación de Profesor: ${evaluacionFinal}`);
-            doc.text(`Carrera: ${nombreCarrera}`);
+            doc.text(`Carrera: ${nombre_carrera}`);
+            doc.text(`Asignatura: ${nombre_asignatura}`);
+            doc.text(`Evaluación de Profesor: ${postulante.estado}`);
+
+            doc.text(`Fecha de postulación: ${postulante.fecha_postulacion}`);
 
             doc.moveDown();
+
         });
 
         doc.end();

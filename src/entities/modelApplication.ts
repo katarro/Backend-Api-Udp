@@ -12,6 +12,7 @@ import { Carrera } from './modelCarrera';
 import { Asignatura } from './modelAsignatura'; 
 import { Professor } from './modelProfessor'; 
 import { Periodo } from './modelPeriodo'; 
+
 @Table({
     tableName: 'postulacion',
     timestamps: false,
@@ -58,4 +59,12 @@ export class Application extends Model<Application> {
     @ForeignKey(() => Periodo)
     @Column
     id_periodo: number;
+
+    @BelongsTo(() => Carrera, { as: 'carrera' })
+    carrera: Carrera;
+
+  
+    @BelongsTo(() => Asignatura, {as: 'asignatura'})
+    asignatura: Asignatura;
+  
 }

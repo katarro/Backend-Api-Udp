@@ -3,6 +3,8 @@ import { Controller, Get, Post, Body, HttpException, HttpStatus, Param, Res } fr
 import { ApplicationsService } from './applications.service';
 import { CreateApplicationDto } from '../entities/CreateApplication';
 import { Response } from 'express';
+import { InternalServerErrorException } from '@nestjs/common';
+
 
 @Controller('api')
 export class ApplicationsController {
@@ -15,7 +17,7 @@ export class ApplicationsController {
     ) {
         try {
             const application = await this.applicationsService.createApplication(createApplicationDto);
-            return { message: 'Application successfully registered', application };
+            return { message: 'Usuario Registrado Exitosamente', application, ok:true };
         } catch (error) {
             console.error(error);
 
@@ -24,7 +26,7 @@ export class ApplicationsController {
 
                 throw error;
             }
-            throw new HttpException({ message: 'Error registering application', error: error.message }, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException({ message: 'Usuario ya registrado en la Asignatura', error: error.message }, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -48,6 +50,15 @@ export class ApplicationsController {
             return res.status(HttpStatus.OK).json(requirements);
         } catch (error) {
             throw new HttpException({ message: 'Error getting requirements', error }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Get('/profesor/:id')
+    async getApplicationsByProfesor(@Param('id') profesorId: number) {
+        try {
+            return await this.applicationsService.getApplicationsByProfesorId(profesorId);
+        } catch (error) {
+            throw new InternalServerErrorException('Error al obtener las postulaciones.');
         }
     }
 

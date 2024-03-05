@@ -4,7 +4,7 @@ export enum EstadoPostulacion {
     Postulando = 'Postulando',
     Asignado = 'Asignado a',
     EvaluadoPositivamente = 'Evaluado Positivamente',
-    EvaluadoNegativamente = 'Evaluado negativamente',
+    EvaluadoNegativamente = 'Evaluado Negativamente',
 }
 
 export class CreateApplicationDto {

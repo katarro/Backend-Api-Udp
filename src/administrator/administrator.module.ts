@@ -8,10 +8,12 @@ import { Requirement } from 'src/entities/modelRequirements';
 import { ApplicationsService } from 'src/postulations/applications.service';
 import { Professor } from 'src/entities/modelProfessor';
 import { Periodo } from 'src/entities/modelPeriodo';
+import {Carrera} from '../entities/modelCarrera';
+import {Asignatura} from '../entities/modelAsignatura';
 
 @Module({
     imports: [
-        SequelizeModule.forFeature([Administrator, Application, Requirement, Professor, Periodo]),
+        SequelizeModule.forFeature([Administrator, Application, Requirement, Professor, Periodo, Carrera, Asignatura]),
     ],
 
     controllers: [AdministratorController],

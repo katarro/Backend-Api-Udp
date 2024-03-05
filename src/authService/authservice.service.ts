@@ -43,6 +43,8 @@ export class AuthserviceService {
         return {
             token: this.jwtService.sign(payload),
             userType: user.userType,
+            email: user.email,
+            id_profesor: user.id
         };
     }
 
@@ -64,12 +66,12 @@ export class AuthserviceService {
     }
 
     async registerProfessor(nombre: string, correo: string): Promise<string> {
-        // const contrasena = crypto.randomBytes(3).toString('hex');
-        const contrasena = '123';
+        const contrasena = crypto.randomBytes(3).toString('hex');
+        //const contrasena = '123';
         const contrasenaHash = await bcrypt.hash(contrasena, 10);
 
         try {
-            // await this.sendEmail(correo, nombre, contrasena);
+            await this.sendEmail(correo, nombre, contrasena);
             await this.professorModel.create({
                 nombre: nombre,
                 correo: correo,

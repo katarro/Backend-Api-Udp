@@ -4,6 +4,7 @@ import { CreateApplicationDto } from '../entities/CreateApplication';
 import { InjectModel } from '@nestjs/sequelize';
 import { Application } from '../entities/modelApplication';
 import { Requirement } from '../entities/modelRequirements';
+import { InternalServerErrorException } from '@nestjs/common';
 
 @Injectable()
 export class ApplicationsService {
@@ -12,6 +13,19 @@ export class ApplicationsService {
         @InjectModel(Application) private applicationModel: typeof Application,
         @InjectModel(Requirement) private requirementModel: typeof Requirement
     ) { }
+
+    async getApplicationsByProfesorId(profesorId: number): Promise<Application[]> {
+        try {
+            return await this.applicationModel.findAll({
+              where: { id_profesor: profesorId }
+            });
+        } catch (error) {
+            throw new InternalServerErrorException('Error al obtener las postulaciones.');
+
+        }
+    }
+
+
 
     async createApplication(createApplicationDto: CreateApplicationDto) {
         console.log(createApplicationDto)
