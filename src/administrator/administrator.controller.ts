@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Post, Param,HttpException, HttpStatus, Body, Patch, Delete, Res } from '@nestjs/common';
+import { Controller, Get, Put, Post, Param, HttpException, HttpStatus, Body, Patch, Delete, Res } from '@nestjs/common';
 import { AdministratorService } from './administrator.service';
 import { ApplicationsService } from '../postulations/applications.service'
 import { Response } from 'express';
@@ -17,8 +17,8 @@ export class AdministratorController {
         @Body('rutPostulante') rutPostulante: string,
         @Body('asignatura') asignatura: number,
         @Body('estado') estado: string,
-    ){
-        
+    ) {
+
         try {
             const postulant = await this.administratorService.assingProfessor(profesorId, rutPostulante, asignatura, estado);
             return { mensaje: "Selección actualizada con éxito", postulant };
@@ -31,11 +31,12 @@ export class AdministratorController {
 
     @Patch('seleccionar')
     async updatePostulantSelection(
-        @Body('rut') rut: string,
-        @Body('estado') estado: string
+        @Body('estado') estado: string,
+        @Body('id_postulante') id_postulante: number,
+        @Body('id_profesor') id_profesor: null | number,
     ) {
         try {
-            const postulant = await this.administratorService.updateSelection(rut, estado);
+            const postulant = await this.administratorService.updateSelection(estado, id_postulante, id_profesor);
             return { mensaje: "Selección actualizada con éxito", postulant };
         } catch (error) {
             console.error(error);
@@ -99,7 +100,7 @@ export class AdministratorController {
 
     }
 
-   
+
 
     @Post('requisitos')
     async createRequirementHandler(@Body('requisito') requisito: string) {
@@ -144,6 +145,8 @@ export class AdministratorController {
             res.status(500).send('Error al generar el PDF');
         }
     }
+
+
 
 
 }
