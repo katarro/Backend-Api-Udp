@@ -2,9 +2,9 @@
 
 
 // POSTULACIONES
-router.post("/api/postular", postulacionesRoutes);
+router.post("/api/postular", postulacionesRoutes);\n
 router.get("/api/estado/:rut", postulacionesRoutes);
-#router.get("/api/requisitos", postulacionesRoutes);
+router.get("/api/requisitos", postulacionesRoutes);
 
 // ADMINISTRADOR
 #router.get("/api/adminin", adminRoutes);
