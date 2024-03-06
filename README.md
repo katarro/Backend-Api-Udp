@@ -16,10 +16,10 @@
 #router.post("/api/create-pdf",adminRoutes);
 
 // LOGIN
-#router.post("/api/login", login);
-#router.post("/api/register-profesor", sendEmail);
-#router.post("/api/restablecer", restablecerPassword);
-#router.patch("/api/cambiar-contrasena",cambiarPassword);
+#router.post("/api/login", login);  
+#router.post("/api/register-profesor", sendEmail);  
+#router.post("/api/restablecer", restablecerPassword);  
+#router.patch("/api/cambiar-contrasena",cambiarPassword);  
 
 
 
