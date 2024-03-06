@@ -1,5 +1,6 @@
 ## Endpoints
 
+```
 
 // POSTULACIONES
 router.post("/api/postular", postulacionesRoutes);\n
@@ -20,6 +21,7 @@ router.get("/api/requisitos", postulacionesRoutes);
 #router.post("/api/register-profesor", sendEmail);  
 #router.post("/api/restablecer", restablecerPassword);  
 #router.patch("/api/cambiar-contrasena",cambiarPassword);  
+```
 
 
 
