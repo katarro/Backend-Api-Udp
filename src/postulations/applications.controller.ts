@@ -22,8 +22,6 @@ export class ApplicationsController {
             console.error(error);
 
             if (error instanceof HttpException) {
-                // Re-lanza el mismo error HttpException que el servicio lanzó
-
                 throw error;
             }
             throw new HttpException({ message: 'Usuario ya registrado en la Asignatura', error: error.message }, HttpStatus.INTERNAL_SERVER_ERROR);

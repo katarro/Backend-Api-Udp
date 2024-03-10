@@ -46,6 +46,7 @@ export class ApplicationsService {
 
         // Si no hay una postulación previa, procede a crear una nueva
         try {
+            
             return await this.applicationModel.create(createApplicationDto);
         } catch (error) {
             // Aquí puedes manejar errores específicos de la creación

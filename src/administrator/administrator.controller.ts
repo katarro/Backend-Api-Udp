@@ -17,10 +17,11 @@ export class AdministratorController {
         @Body('rutPostulante') rutPostulante: string,
         @Body('asignatura') asignatura: number,
         @Body('estado') estado: string,
+        @Body('id_postulante') id_postulante: number,
     ) {
-
+        console.log("ID POSTULANTE: ", id_postulante);
         try {
-            const postulant = await this.administratorService.assingProfessor(profesorId, rutPostulante, asignatura, estado);
+            const postulant = await this.administratorService.assingProfessor(profesorId, rutPostulante, asignatura, estado, id_postulante);
             return { mensaje: "Selección actualizada con éxito", postulant };
         } catch (error) {
             console.error(error);
