@@ -8,10 +8,12 @@ import { Professor } from 'src/entities/modelProfessor';
 import { create } from 'domain';
 import { CreateApplicationDto, EstadoPostulacion } from 'src/entities/CreateApplication';
 import { Periodo } from 'src/entities/modelPeriodo';
-import {Carrera} from '../entities/modelCarrera';
-import {Asignatura} from '../entities/modelAsignatura';
+import { Carrera } from '../entities/modelCarrera';
+import { Asignatura } from '../entities/modelAsignatura';
 import { Op } from 'sequelize';
 import Sequelize from 'sequelize'
+import * as sgMail from '@sendgrid/mail';
+
 @Injectable()
 export class AdministratorService {
 
@@ -25,22 +27,74 @@ export class AdministratorService {
         @InjectModel(Asignatura) private asignaturaModel: typeof Asignatura
     ) { }
 
-    async assingProfessor(profesorId: number, rutPostulante: string, asignatura: number, estado: string): Promise<Application>{
 
-        
+
+    selectionAsignatura(id_asignatura: number): string {
+        const asignaturas: { [key: number]: string } = {
+            1: "Introducción a la Ingeniería",
+            2: "Algoritmos y Programación",
+            3: "Estructura de Datos",
+            4: "Lenguajes de Programación",
+            5: "Bases de Datos",
+            6: "Sistemas de Información"
+        };
+
+        return asignaturas[id_asignatura] || "Asignatura no encontrada";
+    }
+
+    async sendEmail(correo: string, nombre: string, asignatura: string) {
+
+        const msg = {
+            to: correo,
+            from: 'rcastillor@utem.cl',
+            subject: 'Postulación de Ayudantia',
+            text: `Hola ${nombre},\n\nPostulación de ayudantía en: ${asignatura} ha sido ha sido Aprobada`,
+            html: `
+            <div style="font-family: Arial, sans-serif; color: #333;">
+                <h2>Hola ${nombre},</h2>
+                <p>¡Tenemos excelentes noticias!</p>
+                <p>Tu postulación de ayudantía para la asignatura <strong>${asignatura}</strong> ha sido <span style="color: #27ae60;"><strong>aprobada</strong></span>.</p>
+                <p>Pronto recibirás más detalles sobre los siguientes pasos a seguir.</p>
+                <hr>
+                <p>Gracias por tu esfuerzo y dedicación,</p>
+                <p><strong>Escuela de Ingenieria - UTEM</strong></p>
+            </div>
+        `,
+
+        };
+
+        try {
+            await sgMail.send(msg);
+        } catch (error) {
+            throw new Error(`Error al enviar el correo ${error}`);
+        }
+    }
+
+
+    async assingProfessor(profesorId: number, rutPostulante: string, asignatura: number, estado: string, id_postulante: number): Promise<Application> {
+
+
         const postulante = await this.application.findOne({
-                where: {
-                    rut: rutPostulante,
-                    id_asignatura: asignatura,
-                },
-            });
+            where: {
+                rut: rutPostulante,
+                id_asignatura: asignatura,
+                id_postulante: id_postulante
+            },
+        });
 
-        if (!postulante) {throw new NotFoundException(`Postulante con RUT ${rutPostulante} no encontrado.`);}
+        if (!postulante) { throw new NotFoundException(`Postulante con RUT ${rutPostulante} no encontrado.`); }
 
         postulante.estado = estado;
         postulante.id_profesor = profesorId;
         postulante.fecha_asignacion = new Date();
         postulante.fecha_cambio_estado = new Date();
+
+        let asignaturaNombre = this.selectionAsignatura(asignatura);
+
+        if (estado === EstadoPostulacion.Asignado) {
+
+            this.sendEmail(postulante.correo, postulante.nombre, asignaturaNombre);
+        }
 
         await postulante.save();
         return postulante;
@@ -59,7 +113,7 @@ export class AdministratorService {
         return await this.professorModel.findAll();
     }
 
-    
+
     async getAllApplications(): Promise<Application[]> {
         return await this.application.findAll();
     }
@@ -74,9 +128,6 @@ export class AdministratorService {
         postulante.estado = estado;
         await postulante.save();
 
-        // Aquí deberías llamar a tu función de envío de correo electrónico, por ejemplo:
-        // this.emailService.sendEmail(estado, postulante.correo);
-
         return postulante;
     }
 
@@ -88,15 +139,16 @@ export class AdministratorService {
         }
     }
 
-    async updateSelection( estado:string, id_postulante: number, id_profesor: null | number): Promise<Application> {
-        const postulant = await this.application.findOne({ where: { id_postulante } });
 
+
+    async updateSelection(estado: string, id_postulante: number, id_profesor: null | number): Promise<Application> {
+        const postulant = await this.application.findOne({ where: { id_postulante } });
         if (!postulant) {
-            console.log(`No se encontró un postulante con el id: ${id_postulante}`);
             throw new NotFoundException(`Postulante con id ${id_postulante} no encontrado.`);
         }
         postulant.estado = estado;
         postulant.id_profesor = id_profesor;
+
 
         await postulant.save();
         return postulant;
@@ -129,14 +181,14 @@ export class AdministratorService {
                 { model: Carrera, as: 'carrera' },
                 { model: Asignatura, as: 'asignatura' }
 
-                ],
+            ],
 
-             where: {
+            where: {
                 estado: {
-                  [Op.or]: [
-                    EstadoPostulacion.EvaluadoPositivamente,
-                    EstadoPostulacion.EvaluadoNegativamente
-                  ]
+                    [Op.or]: [
+                        EstadoPostulacion.EvaluadoPositivamente,
+                        EstadoPostulacion.EvaluadoNegativamente
+                    ]
                 }
             },
         });
@@ -144,24 +196,24 @@ export class AdministratorService {
         const doc = new PDFDocument();
         const buffers: Buffer[] = [];
         doc.on('data', buffers.push.bind(buffers));
-        doc.on('end', () => {});
+        doc.on('end', () => { });
 
         postulantes.forEach((postulante) => {
             let nombre_carrera;
             let nombre_asignatura;
             let codigo_carrera = postulante.id_carrera;
             let codigo_asignatura = postulante.id_asignatura;
-            
-            if(codigo_carrera === 1) nombre_carrera = 'Ingeniería Civil en Computación mención Informática';
-            if(codigo_carrera === 2) nombre_carrera = 'Ingeniería en Informática';
-            if(codigo_carrera === 3) nombre_carrera = 'Ingeniería Civil en Ciencias de Datos';
+
+            if (codigo_carrera === 1) nombre_carrera = 'Ingeniería Civil en Computación mención Informática';
+            if (codigo_carrera === 2) nombre_carrera = 'Ingeniería en Informática';
+            if (codigo_carrera === 3) nombre_carrera = 'Ingeniería Civil en Ciencias de Datos';
 
             if (codigo_asignatura === 1) nombre_asignatura = 'Introducción a la Ingeniería';
             if (codigo_asignatura === 2) nombre_asignatura = 'Algoritmos y Programación';
             if (codigo_asignatura === 3) nombre_asignatura = 'Estructura de Datos';
 
             if (codigo_asignatura === 4) nombre_asignatura = 'Lenguajes de Programación';
-            if (codigo_asignatura === 5) nombre_asignatura = 'Bases de Datos'; 
+            if (codigo_asignatura === 5) nombre_asignatura = 'Bases de Datos';
             if (codigo_asignatura === 6) nombre_asignatura = 'Sistemas de Información';
 
 
