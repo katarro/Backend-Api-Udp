@@ -1,10 +1,11 @@
 ## Endpoints
 
+```
 
 // POSTULACIONES
-#router.post("/api/postular", postulacionesRoutes);
-#router.get("/api/estado/:rut", postulacionesRoutes);
-#router.get("/api/requisitos", postulacionesRoutes);
+router.post("/api/postular", postulacionesRoutes);\n
+router.get("/api/estado/:rut", postulacionesRoutes);
+router.get("/api/requisitos", postulacionesRoutes);
 
 // ADMINISTRADOR
 #router.get("/api/adminin", adminRoutes);
@@ -16,10 +17,11 @@
 #router.post("/api/create-pdf",adminRoutes);
 
 // LOGIN
-#router.post("/api/login", login);
-#router.post("/api/register-profesor", sendEmail);
-#router.post("/api/restablecer", restablecerPassword);
-#router.patch("/api/cambiar-contrasena",cambiarPassword);
+#router.post("/api/login", login);  
+#router.post("/api/register-profesor", sendEmail);  
+#router.post("/api/restablecer", restablecerPassword);  
+#router.patch("/api/cambiar-contrasena",cambiarPassword);  
+```
 
 
 
