@@ -53,8 +53,8 @@ export class AuthserviceService {
         const msg = {
             to: correo,
             from: 'rcastillor@utem.cl',
-            subject: 'Bienvenido a la plataforma',
-            text: `Hola ${nombre},\n\nTu cuenta ha sido creada. Tu contraseña es: ${contrasena}`,
+            subject: 'Bienvenido, Contraseña de Acceso al Sistema',
+            text: `Hola ${nombre},\n\nTu cuenta de profesor ha sido creada en el Sistema para Ayudantías de la Escuela de Informática.\n\nA continuación, encontrarás tu contraseña de acceso: ${contrasena}.\n\nRecuerda que esta contraseña es una opción y puedes cambiarla en cualquier momento desde tu perfil dentro del sistema.\n\nUna vez dentro, podrás acceder a tu Lista de Ayudantes y evaluarlos al final del semestre.\n\n¡Bienvenido!`,
         };
 
         try {
