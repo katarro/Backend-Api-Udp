@@ -43,6 +43,9 @@ export class Application extends Model<Application> {
   
     @Column
     fecha_cambio_estado: Date;
+
+    @Column
+    comentario: string;
   
     @ForeignKey(() => Carrera)
     @Column
@@ -63,8 +66,9 @@ export class Application extends Model<Application> {
     @BelongsTo(() => Carrera, { as: 'carrera' })
     carrera: Carrera;
 
-  
     @BelongsTo(() => Asignatura, {as: 'asignatura'})
     asignatura: Asignatura;
+
+    
   
 }

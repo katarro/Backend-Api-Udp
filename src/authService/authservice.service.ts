@@ -65,7 +65,7 @@ export class AuthserviceService {
         }
     }
 
-    async registerProfessor(nombre: string, correo: string): Promise<string> {
+    async registerProfessor(nombre: string, correo: string, rut: string): Promise<string> {
         const contrasena = crypto.randomBytes(3).toString('hex');
         //const contrasena = '123';
         const contrasenaHash = await bcrypt.hash(contrasena, 10);
@@ -76,6 +76,7 @@ export class AuthserviceService {
                 nombre: nombre,
                 correo: correo,
                 contrasena: contrasenaHash,
+                rut: rut
             });
 
             return 'Usuario registrado y correo enviado';

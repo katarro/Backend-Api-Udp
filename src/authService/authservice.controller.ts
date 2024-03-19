@@ -29,9 +29,9 @@ export class AuthserviceController {
 
 
     @Post('register-profesor')
-    async registerProfessor(@Body() body: { nombre: string; correo: string }, @Res() res: Response) {
+    async registerProfessor(@Body() body: { nombre: string; correo: string, rut: string }, @Res() res: Response) {
         try {
-            const message = await this.authService.registerProfessor(body.nombre, body.correo);
+            const message = await this.authService.registerProfessor(body.nombre, body.correo, body.rut);
             res.status(HttpStatus.OK).send(message);
         } catch (error) {
             console.error('Error en el servidor:', error);

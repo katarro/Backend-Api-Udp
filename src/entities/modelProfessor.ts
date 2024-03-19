@@ -18,5 +18,8 @@ export class Professor extends Model<Professor> {
   
     @Column
     contrasena: string;
+
+    @Column
+    rut: string;
   }
   

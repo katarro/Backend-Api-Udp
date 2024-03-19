@@ -1,5 +1,5 @@
 // Application controller
-import { Controller, Get, Post, Body, HttpException, HttpStatus, Param, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpException, HttpStatus, Param, Res, Patch } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { CreateApplicationDto } from '../entities/CreateApplication';
 import { Response } from 'express';
@@ -10,6 +10,8 @@ import { InternalServerErrorException } from '@nestjs/common';
 export class ApplicationsController {
 
     constructor(private readonly applicationsService: ApplicationsService) { }
+
+
 
     @Post('postular')
     async registerApplication(
@@ -57,6 +59,15 @@ export class ApplicationsController {
             return await this.applicationsService.getApplicationsByProfesorId(profesorId);
         } catch (error) {
             throw new InternalServerErrorException('Error al obtener las postulaciones.');
+        }
+    }
+
+    @Patch('/profesor/comment')
+    async addComment(@Body() body: {id: number, comment: string}) {
+        try {
+            return await this.applicationsService.addComment(body.id, body.comment);
+        } catch (error) {
+            throw new InternalServerErrorException('Error al agregar comentario.');
         }
     }
 
