@@ -7,6 +7,7 @@ import * as PDFDocument from 'pdfkit';
 import { Professor } from 'src/entities/modelProfessor';
 import { create } from 'domain';
 import { CreateApplicationDto, EstadoPostulacion } from 'src/entities/CreateApplication';
+import {CreateAsignaturaDto} from 'src/entities/CreateAsignatura';
 import { Periodo } from 'src/entities/modelPeriodo';
 import { Carrera } from '../entities/modelCarrera';
 import { Asignatura } from '../entities/modelAsignatura';
@@ -27,7 +28,49 @@ export class AdministratorService {
         @InjectModel(Asignatura) private asignaturaModel: typeof Asignatura
     ) { }
 
+    async deleteAsignatura(id: number) {
+        try {
+            const asignatura = await this.asignaturaModel.findByPk(id);
+            if (!asignatura) {
+                throw new NotFoundException(`No se encontró la asignatura con el ID: ${id}`);
+            }
+            await asignatura.destroy();
+        } catch (error) {
+            throw new HttpException(`Error al eliminar la asignatura: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
+    async updateAsignatura(body: CreateAsignaturaDto, id: number) {
+        try {
+            const asignatura = await this.asignaturaModel.findByPk(id);
+            if (!asignatura) {
+                throw new NotFoundException(`No se encontró la asignatura con el ID: ${id}`);
+            }
+            await asignatura.update(body);
+            return asignatura;
+        } catch (error) {
+            throw new HttpException(`Error al actualizar la asignatura: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async createAsignatura(body: CreateAsignaturaDto) {
+        try {
+            return await this.asignaturaModel.create(body);
+        } catch (error) {
+            throw new HttpException(`Error al crear la asignatura: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async getAsignaturas(){
+        try {
+            const asignaturas =  await this.asignaturaModel.findAll();
+            console.log(asignaturas);
+            return asignaturas;
+            
+        } catch (error) {
+            throw new HttpException(`Error al obtener las asignaturas: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);            
+        }
+    }
 
     selectionAsignatura(id_asignatura: number): string {
         const asignaturas: { [key: number]: string } = {
@@ -175,14 +218,12 @@ export class AdministratorService {
     }
 
 
-    async generatePdf(): Promise<Buffer> {
+    async generateCsv(): Promise<string> {
         const postulantes = await this.application.findAll({
             include: [
                 { model: Carrera, as: 'carrera' },
                 { model: Asignatura, as: 'asignatura' }
-
             ],
-
             where: {
                 estado: {
                     [Op.or]: [
@@ -193,52 +234,51 @@ export class AdministratorService {
             },
         });
 
-        const doc = new PDFDocument();
-        const buffers: Buffer[] = [];
-        doc.on('data', buffers.push.bind(buffers));
-        doc.on('end', () => { });
+        let csvContent = 'Nombre,RUT,Carrera,Asignatura,Evaluación,Fecha de Postulación\n';
 
         postulantes.forEach((postulante) => {
-            let nombre_carrera;
-            let nombre_asignatura;
-            let codigo_carrera = postulante.id_carrera;
-            let codigo_asignatura = postulante.id_asignatura;
+            const nombre_carrera = this.getNombreCarrera(postulante.id_carrera);
+            const nombre_asignatura = this.getNombreAsignatura(postulante.id_asignatura);
 
-            if (codigo_carrera === 1) nombre_carrera = 'Ingeniería Civil en Computación mención Informática';
-            if (codigo_carrera === 2) nombre_carrera = 'Ingeniería en Informática';
-            if (codigo_carrera === 3) nombre_carrera = 'Ingeniería Civil en Ciencias de Datos';
+            const fechaPostulacion = new Date(postulante.fecha_postulacion);
 
-            if (codigo_asignatura === 1) nombre_asignatura = 'Introducción a la Ingeniería';
-            if (codigo_asignatura === 2) nombre_asignatura = 'Algoritmos y Programación';
-            if (codigo_asignatura === 3) nombre_asignatura = 'Estructura de Datos';
+            const fechaPostulacionStr = fechaPostulacion instanceof Date && !isNaN(fechaPostulacion.valueOf())
+                ? fechaPostulacion.toISOString().split('T')[0]
+                : '';
 
-            if (codigo_asignatura === 4) nombre_asignatura = 'Lenguajes de Programación';
-            if (codigo_asignatura === 5) nombre_asignatura = 'Bases de Datos';
-            if (codigo_asignatura === 6) nombre_asignatura = 'Sistemas de Información';
+            const row = [
+                `"${postulante.nombre}"`,
+                postulante.rut,
+                `"${nombre_carrera}"`,
+                `"${nombre_asignatura}"`,
+                postulante.estado,
+                `"${fechaPostulacionStr}"` 
+            ].join(',');
 
-
-
-
-            doc.text(`Nombre: ${postulante.nombre}`);
-            doc.text(`Rut: ${postulante.rut}`);
-            doc.text(`Carrera: ${nombre_carrera}`);
-            doc.text(`Asignatura: ${nombre_asignatura}`);
-            doc.text(`Evaluación de Profesor: ${postulante.estado}`);
-
-            doc.text(`Fecha de postulación: ${postulante.fecha_postulacion}`);
-
-            doc.moveDown();
-
+            csvContent += row + '\n';
         });
 
-        doc.end();
+        return csvContent;
+    }
 
-        return new Promise((resolve, reject) => {
-            doc.on('end', () => {
-                const pdfBuffer = Buffer.concat(buffers);
-                resolve(pdfBuffer);
-            });
-            doc.on('error', reject); // Manejar posibles errores
-        });
+    private getNombreCarrera(id_carrera: number): string {
+        switch (id_carrera) {
+            case 1: return 'Ingeniería Civil en Computación mención Informática';
+            case 2: return 'Ingeniería en Informática';
+            case 3: return 'Ingeniería Civil en Ciencias de Datos';
+            default: return 'Carrera no encontrada';
+        }
+    }
+
+    private getNombreAsignatura(id_asignatura: number): string {
+        switch (id_asignatura) {
+            case 1: return 'Introducción a la Ingeniería';
+            case 2: return 'Algoritmos y Programación';
+            case 3: return 'Estructura de Datos';
+            case 4: return 'Lenguajes de Programación';
+            case 5: return 'Bases de Datos';
+            case 6: return 'Sistemas de Información';
+            default: return 'Asignatura no encontrada';
+        }
     }
 }

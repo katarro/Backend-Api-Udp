@@ -2,6 +2,8 @@ import { Controller, Get, Put, Post, Param, HttpException, HttpStatus, Body, Pat
 import { AdministratorService } from './administrator.service';
 import { ApplicationsService } from '../postulations/applications.service'
 import { Response } from 'express';
+import { CreateAsignaturaDto } from 'src/entities/CreateAsignatura';
+import { create } from 'domain';
 
 @Controller('api/adminin')
 export class AdministratorController {
@@ -44,6 +46,50 @@ export class AdministratorController {
             throw new HttpException({ message: 'Error updating postulant selection', error }, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Get('asignaturas')
+    async getAsignaturas() {
+        try {
+            return await this.administratorService.getAsignaturas();
+        } catch (error) {
+            console.error(error);
+            throw new HttpException({ message: 'Error getting asignaturas', error: error.message }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Post('asignaturas')
+    async createAsignaturaHandler(@Body () CreateAsignaturaDto: CreateAsignaturaDto) {
+        try {
+            const newAsignatura = await this.administratorService.createAsignatura(CreateAsignaturaDto);
+            return newAsignatura;
+        } catch (error) {
+            console.error(error);
+            throw new HttpException({ message: 'Error creating asignatura', error: error.message }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Delete('asignaturas/:id')
+    async deleteAsignaturaHandler(@Param('id') id: number) {
+        try {
+            await this.administratorService.deleteAsignatura(id);
+            return { mensaje: `Asignatura con ID ${id} eliminada con éxito` };
+        } catch (error) {
+            console.error(error);
+            throw new HttpException({ message: 'Error deleting asignatura', error: error.message }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Patch('asignaturas/:id')
+    async updateAsignaturaHandler(@Body () createAsignaturaDto: CreateAsignaturaDto, @Param('id') id: number) {
+        try {
+            const updatedAsignatura = await this.administratorService.updateAsignatura(createAsignaturaDto, id);
+            return updatedAsignatura;
+        } catch (error) {
+            console.error(error);
+            throw new HttpException({ message: 'Error updating asignatura', error: error.message }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @Get('periodo')
     async getPeriodo() {
@@ -134,18 +180,20 @@ export class AdministratorController {
         }
     }
 
-    @Post('create-pdf')
-    async generatePdf(@Res() res: Response) {
+    @Post('create-csv')
+    async generateCsv(@Res() res: Response) {
         try {
-            const pdfBuffer = await this.administratorService.generatePdf();
-            res.type('application/pdf');
-            res.attachment('example.pdf');
-            res.send(pdfBuffer);
+            const csvContent = await this.administratorService.generateCsv();
+            res.type('text/csv');
+            res.attachment('example.csv');
+            res.send(csvContent);
         } catch (error) {
             console.error(error);
-            res.status(500).send('Error al generar el PDF');
+            res.status(500).send('Error al generar el CSV');
         }
     }
+
+
 
 
 

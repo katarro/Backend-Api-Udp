@@ -1,8 +1,8 @@
 import { AutoIncrement, Column, Model, PrimaryKey, Table } from "sequelize-typescript";
 
 @Table({
-    tableName: 'periodo',
-    timestamps: false
+  tableName: 'periodo',
+  timestamps: false
 })
 
 @Table

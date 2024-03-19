@@ -14,6 +14,17 @@ export class ApplicationsService {
         @InjectModel(Requirement) private requirementModel: typeof Requirement
     ) { }
 
+
+    async addComment(id: number, comment: string) {
+        try {
+            const application = await this.applicationModel.findByPk(id);
+            application.comentario = comment;
+            return await application.save();
+        } catch (error) {
+            throw new InternalServerErrorException('Error al agregar comentario.');
+        }
+    }
+
     async getApplicationsByProfesorId(profesorId: number): Promise<Application[]> {
         try {
             return await this.applicationModel.findAll({
@@ -24,8 +35,6 @@ export class ApplicationsService {
 
         }
     }
-
-
 
     async createApplication(createApplicationDto: CreateApplicationDto) {
         console.log(createApplicationDto)
