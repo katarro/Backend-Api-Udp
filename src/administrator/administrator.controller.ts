@@ -21,7 +21,6 @@ export class AdministratorController {
         @Body('estado') estado: string,
         @Body('id_postulante') id_postulante: number,
     ) {
-        console.log("ID POSTULANTE: ", id_postulante);
         try {
             const postulant = await this.administratorService.assingProfessor(profesorId, rutPostulante, asignatura, estado, id_postulante);
             return { mensaje: "Selección actualizada con éxito", postulant };
@@ -44,6 +43,21 @@ export class AdministratorController {
         } catch (error) {
             console.error(error);
             throw new HttpException({ message: 'Error updating postulant selection', error }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Patch('asignaturas')
+    async updateAsignaturaHandler(
+        @Body('id') id: number,
+        @Body('nombre') nombre: string,
+        @Body('codigo_carrera') codigo_carrera: string
+    ){
+        try {
+            const updatedAsignatura = await this.administratorService.updateAsignatura(id, nombre, codigo_carrera);
+            return updatedAsignatura;
+        } catch (error) {
+            console.error(error);
+            throw new HttpException({ message: 'Error updating asignatura', error: error.message }, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -79,16 +93,7 @@ export class AdministratorController {
         }
     }
 
-    @Patch('asignaturas/:id')
-    async updateAsignaturaHandler(@Body () createAsignaturaDto: CreateAsignaturaDto, @Param('id') id: number) {
-        try {
-            const updatedAsignatura = await this.administratorService.updateAsignatura(createAsignaturaDto, id);
-            return updatedAsignatura;
-        } catch (error) {
-            console.error(error);
-            throw new HttpException({ message: 'Error updating asignatura', error: error.message }, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+
 
 
     @Get('periodo')
