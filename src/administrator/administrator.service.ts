@@ -40,13 +40,13 @@ export class AdministratorService {
         }
     }
 
-    async updateAsignatura(body: CreateAsignaturaDto, id: number) {
+    async updateAsignatura(id: number, nombre: string, codigo_carrera: string) {
         try {
             const asignatura = await this.asignaturaModel.findByPk(id);
             if (!asignatura) {
                 throw new NotFoundException(`No se encontró la asignatura con el ID: ${id}`);
             }
-            await asignatura.update(body);
+            await asignatura.update({ nombre, codigo_carrera});
             return asignatura;
         } catch (error) {
             throw new HttpException(`Error al actualizar la asignatura: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
