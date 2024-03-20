@@ -15,6 +15,7 @@ router.get("/api/requisitos", postulacionesRoutes);
 #router.post("/api/adminin/requisitos", adminRoutes);
 #router.delete("/api/adminin/requisito/:id", adminRoutes);
 #router.post("/api/create-pdf",adminRoutes);
+# router.get("/api/adminin/asignaturas", adminRoutes);
 
 // LOGIN
 #router.post("/api/login", login);  
