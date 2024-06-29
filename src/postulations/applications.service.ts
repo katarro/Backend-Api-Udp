@@ -51,6 +51,7 @@ export class ApplicationsService {
                 'El usuario ya ha postulado a esta asignatura',
                 HttpStatus.BAD_REQUEST
             );
+            console.log("mal mal")
         }
 
         // Si no hay una postulación previa, procede a crear una nueva

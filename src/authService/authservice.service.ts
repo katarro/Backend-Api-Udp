@@ -105,7 +105,7 @@ export class AuthserviceService {
 
         const msg = {
             to: correo,
-            from: 'rcastillor@utem.cl',
+            from: 'iman.jarufe@mail.udp.cl',
             subject: 'Restablecimiento de contraseña',
             text: `Hola,\n\nTu nueva contraseña temporal es: ${nuevaContrasena}\nPor favor cambia esta contraseña lo antes posible.`,
         };
