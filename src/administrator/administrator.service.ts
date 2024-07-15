@@ -85,35 +85,35 @@ export class AdministratorService {
         return asignaturas[id_asignatura] || "Asignatura no encontrada";
     }
 
-    async sendEmail(correo: string, nombre: string, asignatura: string) {
+    // async sendEmail(correo: string, nombre: string, asignatura: string) {
 
-        const msg = {
-            to: correo,
-            from: 'rcastillor@utem.cl',
-            subject: 'Postulación para Ayudantía fue Aprobada',
-            text: `Hola ${nombre},\n\nPostulación para la ayudantía en: ${asignatura} ha sido aprobada.`,
-            html: `
-            <div style="font-family: Arial, sans-serif; color: #333;">
-                <h2>Hola ${nombre},</h2>
-                <p>¡Tenemos excelentes noticias!</p>
-                <p>Nos complace informarte que tu postulación para la ayudantía en la asignatura <strong>${asignatura}</strong> ha sido <span style="color: #27ae60;"><strong>aprobada</strong></span>.</p>
-                <p>Pronto recibirás más detalles sobre los siguientes pasos a seguir.</p>
-                <p>Gracias por tu esfuerzo y dedicación.</p>
-                <hr>
-                <p><strong>Escuela de Informática - UTEM</strong></p>
-                <p><a href="http://informatica.utem.cl/">http://informatica.utem.cl/</a></p>
-                <p>Fono: 56 22787 7100</p>
-            </div>
-        `,
+    //     const msg = {
+    //         to: correo,
+    //         from: 'rcastillor@utem.cl',
+    //         subject: 'Postulación para Ayudantía fue Aprobada',
+    //         text: `Hola ${nombre},\n\nPostulación para la ayudantía en: ${asignatura} ha sido aprobada.`,
+    //         html: `
+    //         <div style="font-family: Arial, sans-serif; color: #333;">
+    //             <h2>Hola ${nombre},</h2>
+    //             <p>¡Tenemos excelentes noticias!</p>
+    //             <p>Nos complace informarte que tu postulación para la ayudantía en la asignatura <strong>${asignatura}</strong> ha sido <span style="color: #27ae60;"><strong>aprobada</strong></span>.</p>
+    //             <p>Pronto recibirás más detalles sobre los siguientes pasos a seguir.</p>
+    //             <p>Gracias por tu esfuerzo y dedicación.</p>
+    //             <hr>
+    //             <p><strong>Escuela de Informática - UTEM</strong></p>
+    //             <p><a href="http://informatica.utem.cl/">http://informatica.utem.cl/</a></p>
+    //             <p>Fono: 56 22787 7100</p>
+    //         </div>
+    //     `,
 
-        };
+    //     };
 
-        try {
-            await sgMail.send(msg);
-        } catch (error) {
-            throw new Error(`Error al enviar el correo ${error}`);
-        }
-    }
+    //     try {
+    //         await sgMail.send(msg);
+    //     } catch (error) {
+    //         throw new Error(`Error al enviar el correo ${error}`);
+    //     }
+    // }
 
 
     async assingProfessor(profesorId: number, rutPostulante: string, asignatura: number, estado: string, id_postulante: number): Promise<Application> {
@@ -138,7 +138,7 @@ export class AdministratorService {
 
         if (estado === EstadoPostulacion.Asignado) {
 
-            this.sendEmail(postulante.correo, postulante.nombre, asignaturaNombre);
+            // this.sendEmail(postulante.correo, postulante.nombre, asignaturaNombre);
         }
 
         await postulante.save();
@@ -154,7 +154,7 @@ export class AdministratorService {
         return await this.requirement.findAll();
     }
 
-    async getAllProfessors(): Promise<Administrator[]> {
+    async getAllProfessors(): Promise<Professor[]> {
         return await this.professorModel.findAll();
     }
 
