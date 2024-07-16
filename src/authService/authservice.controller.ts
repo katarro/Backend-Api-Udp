@@ -27,7 +27,6 @@ export class AuthserviceController {
         }
     }
 
-
     @Post('register-profesor')
     async registerProfessor(@Body() body: { nombre: string; correo: string, rut: string }, @Res() res: Response) {
         try {
