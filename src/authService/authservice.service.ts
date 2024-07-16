@@ -47,11 +47,12 @@ export class AuthserviceService {
             id_profesor: user.id
         };
     }
+
     // async sendEmail(correo: string, nombre: string, contrasena: string) {
 
     //     const msg = {
     //         to: correo,
-    //         from: 'rcastillor@utem.cl',
+    //         from: 'jonathan.frez@mail.udp.cl',
     //         subject: 'Bienvenido, Contraseña de Acceso al Sistema',
     //         text: `Hola ${nombre},\n\nTu cuenta de profesor ha sido creada en el Sistema para Ayudantías de la Escuela de Informática.\n\nA continuación, encontrarás tu contraseña de acceso: ${contrasena}.\n\nRecuerda que esta contraseña es una opción y puedes cambiarla en cualquier momento desde tu perfil dentro del sistema.\n\nUna vez dentro, podrás acceder a tu Lista de Ayudantes y evaluarlos al final del semestre.\n\n¡Bienvenido!`,
     //     };
@@ -85,6 +86,7 @@ export class AuthserviceService {
         }
     }
 
+
     async resetPassword(correo: string): Promise<string> {
 
         let usuario: Professor | Administrator = await this.professorModel.findOne({ where: { correo } });
@@ -96,6 +98,7 @@ export class AuthserviceService {
         if (!usuario) {
             throw new Error('Usuario no encontrado');
         }
+        console.log(sgMail.setApiKey(this.configService.get<string>('API_EMAIL')));
 
         const nuevaContrasena = crypto.randomBytes(3).toString('hex');
         const contrasenaHash = await bcrypt.hash(nuevaContrasena, 10);
@@ -104,13 +107,18 @@ export class AuthserviceService {
 
         const msg = {
             to: correo,
-            from: 'iman.jarufe@mail.udp.cl',
+            from: 'felipe.castro3@mail.udp.cl',
             subject: 'Restablecimiento de contraseña',
             text: `Hola,\n\nTu nueva contraseña temporal es: ${nuevaContrasena}\nPor favor cambia esta contraseña lo antes posible.`,
         };
 
-        await sgMail.send(msg);
-        return 'Correo con la nueva contraseña temporal enviado';
+        try {
+            await sgMail.send(msg);
+            return 'Correo enviado con la nueva contraseña';
+        } catch (error) {
+            console.error('Error:', error);
+            throw new Error('Error al enviar el correo');            
+        }
     }
 
     async changePassword(correo: string, contrasenaActual: string, contrasenaNueva: string): Promise<string> {
