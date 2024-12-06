@@ -19,13 +19,13 @@ import * as sgMail from '@sendgrid/mail';
 export class AdministratorService {
 
     constructor(
-        @InjectModel(Administrator) private administratorModel: typeof Administrator,
-        @InjectModel(Application) private application: typeof Application,
-        @InjectModel(Requirement) private requirement: typeof Requirement,
-        @InjectModel(Professor) private professorModel: typeof Professor,
-        @InjectModel(Periodo) private periodoModel: typeof Periodo,
-        @InjectModel(Carrera) private carreraModel: typeof Carrera,
-        @InjectModel(Asignatura) private asignaturaModel: typeof Asignatura
+        @InjectModel(Administrator) private readonly administratorModel: typeof Administrator,
+        @InjectModel(Application) private readonly application: typeof Application,
+        @InjectModel(Requirement) private readonly requirement: typeof Requirement,
+        @InjectModel(Professor) private readonly professorModel: typeof Professor,
+        @InjectModel(Periodo) private readonly periodoModel: typeof Periodo,
+        @InjectModel(Carrera) private readonly carreraModel: typeof Carrera,
+        @InjectModel(Asignatura) private readonly asignaturaModel: typeof Asignatura
     ) { }
 
     async deleteAsignatura(id: number) {
@@ -85,35 +85,35 @@ export class AdministratorService {
         return asignaturas[id_asignatura] || "Asignatura no encontrada";
     }
 
-    // async sendEmail(correo: string, nombre: string, asignatura: string) {
+    async sendEmail(correo: string, nombre: string, asignatura: string) {
 
-    //     const msg = {
-    //         to: correo,
-    //         from: 'rcastillor@utem.cl',
-    //         subject: 'Postulación para Ayudantía fue Aprobada',
-    //         text: `Hola ${nombre},\n\nPostulación para la ayudantía en: ${asignatura} ha sido aprobada.`,
-    //         html: `
-    //         <div style="font-family: Arial, sans-serif; color: #333;">
-    //             <h2>Hola ${nombre},</h2>
-    //             <p>¡Tenemos excelentes noticias!</p>
-    //             <p>Nos complace informarte que tu postulación para la ayudantía en la asignatura <strong>${asignatura}</strong> ha sido <span style="color: #27ae60;"><strong>aprobada</strong></span>.</p>
-    //             <p>Pronto recibirás más detalles sobre los siguientes pasos a seguir.</p>
-    //             <p>Gracias por tu esfuerzo y dedicación.</p>
-    //             <hr>
-    //             <p><strong>Escuela de Informática - UTEM</strong></p>
-    //             <p><a href="http://informatica.utem.cl/">http://informatica.utem.cl/</a></p>
-    //             <p>Fono: 56 22787 7100</p>
-    //         </div>
-    //     `,
+        const msg = {
+            to: correo,
+            from: 'rcastillor@utem.cl',
+            subject: 'Postulación para Ayudantía fue Aprobada',
+            text: `Hola ${nombre},\n\nPostulación para la ayudantía en: ${asignatura} ha sido aprobada.`,
+            html: `
+            <div style="font-family: Arial, sans-serif; color: #333;">
+                <h2>Hola ${nombre},</h2>
+                <p>¡Tenemos excelentes noticias!</p>
+                <p>Nos complace informarte que tu postulación para la ayudantía en la asignatura <strong>${asignatura}</strong> ha sido <span style="color: #27ae60;"><strong>aprobada</strong></span>.</p>
+                <p>Pronto recibirás más detalles sobre los siguientes pasos a seguir.</p>
+                <p>Gracias por tu esfuerzo y dedicación.</p>
+                <hr>
+                <p><strong>Escuela de Informática - UTEM</strong></p>
+                <p><a href="http://informatica.utem.cl/">http://informatica.utem.cl/</a></p>
+                <p>Fono: 56 22787 7100</p>
+            </div>
+        `,
 
-    //     };
+        };
 
-    //     try {
-    //         await sgMail.send(msg);
-    //     } catch (error) {
-    //         throw new Error(`Error al enviar el correo ${error}`);
-    //     }
-    // }
+        try {
+            await sgMail.send(msg);
+        } catch (error) {
+            throw new Error(`Error al enviar el correo ${error}`);
+        }
+    }
 
 
     async assingProfessor(profesorId: number, rutPostulante: string, asignatura: number, estado: string, id_postulante: number): Promise<Application> {

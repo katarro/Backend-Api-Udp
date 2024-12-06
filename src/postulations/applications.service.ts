@@ -8,77 +8,85 @@ import { InternalServerErrorException } from '@nestjs/common';
 
 @Injectable()
 export class ApplicationsService {
+  constructor(
+    @InjectModel(Application) private applicationModel: typeof Application,
+    @InjectModel(Requirement) private requirementModel: typeof Requirement,
+  ) {}
 
-    constructor(
-        @InjectModel(Application) private applicationModel: typeof Application,
-        @InjectModel(Requirement) private requirementModel: typeof Requirement
-    ) { }
+  async addComment(id: number, comment: string) {
+    try {
+      const application = await this.applicationModel.findByPk(id);
+      application.comentario = comment;
+      return await application.save();
+    } catch (error) {
+      throw new InternalServerErrorException('Error al agregar comentario.');
+    }
+  }
 
+  async getApplicationsByProfesorId(
+    profesorId: number,
+  ): Promise<Application[]> {
+    try {
+      return await this.applicationModel.findAll({
+        where: { id_profesor: profesorId },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al obtener las postulaciones.',
+      );
+    }
+  }
 
-    async addComment(id: number, comment: string) {
-        try {
-            const application = await this.applicationModel.findByPk(id);
-            application.comentario = comment;
-            return await application.save();
-        } catch (error) {
-            throw new InternalServerErrorException('Error al agregar comentario.');
-        }
+  async createApplication(createApplicationDto: CreateApplicationDto) {
+    console.log(createApplicationDto);
+    const { rut, id_asignatura } = createApplicationDto;
+
+    // Primero, verifica si el usuario ya ha postulado a la misma asignatura
+    const existingApplication = await this.applicationModel.findOne({
+      where: { rut, id_asignatura },
+    });
+
+    // Si existe una postulación previa, lanza una excepción
+    if (existingApplication) {
+      throw new HttpException(
+        'El usuario ya ha postulado a esta asignatura',
+        HttpStatus.BAD_REQUEST,
+      );
+      console.log('mal mal');
     }
 
-    async getApplicationsByProfesorId(profesorId: number): Promise<Application[]> {
-        try {
-            return await this.applicationModel.findAll({
-              where: { id_profesor: profesorId }
-            });
-        } catch (error) {
-            throw new InternalServerErrorException('Error al obtener las postulaciones.');
-
-        }
+    // Si no hay una postulación previa, procede a crear una nueva
+    try {
+      return await this.applicationModel.create(createApplicationDto);
+    } catch (error) {
+      // Aquí puedes manejar errores específicos de la creación
+      throw new HttpException(
+        'Error creating application',
+        HttpStatus.BAD_REQUEST,
+      );
     }
+  }
 
-    async createApplication(createApplicationDto: CreateApplicationDto) {
-        console.log(createApplicationDto)
-        const { rut, id_asignatura } = createApplicationDto;
-
-        // Primero, verifica si el usuario ya ha postulado a la misma asignatura
-        const existingApplication = await this.applicationModel.findOne({
-            where: { rut, id_asignatura }
-        });
-
-        // Si existe una postulación previa, lanza una excepción
-        if (existingApplication) {
-            throw new HttpException(
-                'El usuario ya ha postulado a esta asignatura',
-                HttpStatus.BAD_REQUEST
-            );
-            console.log("mal mal")
-        }
-
-        // Si no hay una postulación previa, procede a crear una nueva
-        try {
-            
-            return await this.applicationModel.create(createApplicationDto);
-        } catch (error) {
-            // Aquí puedes manejar errores específicos de la creación
-            throw new HttpException('Error creating application', HttpStatus.BAD_REQUEST);
-        }
+  async getStateApplication(rut: string) {
+    console.log('RUT: ', rut);
+    try {
+      return await this.applicationModel.findOne({ where: { rut } });
+    } catch (error) {
+      throw new HttpException(
+        'Error getting application',
+        HttpStatus.BAD_REQUEST,
+      );
     }
+  }
 
-
-    async getStateApplication(rut: string) {
-        try {
-            return await this.applicationModel.findOne({ where: { rut } });
-        } catch (error) {
-            throw new HttpException('Error getting application', HttpStatus.BAD_REQUEST);
-        }
+  async getRequirements() {
+    try {
+      return await this.requirementModel.findAll();
+    } catch (error) {
+      throw new HttpException(
+        'Error getting requirements',
+        HttpStatus.BAD_REQUEST,
+      );
     }
-
-    async getRequirements() {
-        try {
-            return await this.requirementModel.findAll();
-
-        } catch (error) {
-            throw new HttpException('Error getting requirements', HttpStatus.BAD_REQUEST);
-        }
-    }
+  }
 }

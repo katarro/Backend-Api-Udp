@@ -8,16 +8,16 @@ import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import * as sgMail from '@sendgrid/mail';
 import { ConfigService } from '@nestjs/config';
-import { send } from 'process';
+
 
 @Injectable()
 export class AuthserviceService {
 
     constructor(
-        @InjectModel(Professor) private professorModel: typeof Professor,
-        @InjectModel(Administrator) private administratorModel: typeof Administrator,
-        private jwtService: JwtService,
-        private configService: ConfigService
+        @InjectModel(Professor) private readonly professorModel: typeof Professor,
+        @InjectModel(Administrator) private readonly administratorModel: typeof Administrator,
+        private readonly jwtService: JwtService,
+        private readonly configService: ConfigService
     ) {
         sgMail.setApiKey(this.configService.get<string>('API_EMAIL')); // Usa la clave API de SendGrid desde las variables de entorno
     }
@@ -48,22 +48,22 @@ export class AuthserviceService {
         };
     }
 
-    // async sendEmail(correo: string, nombre: string, contrasena: string) {
+    async sendEmail(correo: string, nombre: string, contrasena: string) {
 
-    //     const msg = {
-    //         to: correo,
-    //         from: 'jonathan.frez@mail.udp.cl',
-    //         subject: 'Bienvenido, Contraseña de Acceso al Sistema',
-    //         text: `Hola ${nombre},\n\nTu cuenta de profesor ha sido creada en el Sistema para Ayudantías de la Escuela de Informática.\n\nA continuación, encontrarás tu contraseña de acceso: ${contrasena}.\n\nRecuerda que esta contraseña es una opción y puedes cambiarla en cualquier momento desde tu perfil dentro del sistema.\n\nUna vez dentro, podrás acceder a tu Lista de Ayudantes y evaluarlos al final del semestre.\n\n¡Bienvenido!`,
-    //     };
+        const msg = {
+            to: correo,
+            from: 'jonathan.frez@mail.udp.cl',
+            subject: 'Bienvenido, Contraseña de Acceso al Sistema',
+            text: `Hola ${nombre},\n\nTu cuenta de profesor ha sido creada en el Sistema para Ayudantías de la Escuela de Informática.\n\nA continuación, encontrarás tu contraseña de acceso: ${contrasena}.\n\nRecuerda que esta contraseña es una opción y puedes cambiarla en cualquier momento desde tu perfil dentro del sistema.\n\nUna vez dentro, podrás acceder a tu Lista de Ayudantes y evaluarlos al final del semestre.\n\n¡Bienvenido!`,
+        };
 
-    //     try {
-    //         await sgMail.send(msg);
-    //     } catch (error) {
-    //         console.error('Error:', error);
-    //         throw new Error('Error al enviar el correo');
-    //     }
-    // }
+        try {
+            await sgMail.send(msg);
+        } catch (error) {
+            console.error('Error:', error);
+            throw new Error('Error al enviar el correo');
+        }
+    }
 
     async registerProfessor(nombre: string, correo: string, rut: string): Promise<string> {
         const contrasena = crypto.randomBytes(3).toString('hex');
