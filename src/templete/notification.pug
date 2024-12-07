@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Gotham:400,500,700" rel="stylesheet">
+</head>
+<body style="font-family:'Gotham', sans-serif;">
+    <div class="container" style="width: 500px; margin: 70px auto 0; text-align: center;">
+        <div class="image">
+            <img src="data:image/png;base64,${data.img}" alt="cuarentena-img" style="width: 200px; height: 200px;">
+        </div>
+        <h2 style="text-align: center; font-weight: 600;">${data.title}</h2>
+        <div class="text" style="text-align: justify;">
+            <p style="margin-top: 10px; margin-bottom: 10px; color: #41404699; font-size: 16px; font-weight: 400;">Regards!</p>
+            <p style="color: #41404699; font-size: 16px; font-weight: 400;">${data.description}</p>
+            <hr style="border: 1px solid #ccc; color: #41404626; margin-top: 70px; margin-bottom: 20px;">
+        </div>
+        <div class="image">
+            <img src="data:image/png;base64,${data.imgSocial}" alt="social-media-img">
+        </div>
+        <div class="copyright" style="text-align: center; font-size: 0.8em; font-weight: 600;">
+            <p style="margin-top: 30px; margin-bottom: 10px; color: #41404699;">My App ${data.year} ©. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

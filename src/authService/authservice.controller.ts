@@ -3,11 +3,15 @@ import { Body, Controller, HttpStatus, Patch, Post, Res } from '@nestjs/common';
 import { Administrator } from '../entities/modelAdministrator';
 import { AuthserviceService } from './authservice.service';
 import { Response } from 'express';
+import { EmailService } from './email-service.service';
+import { CreateEmailServerDto } from './dto/create-email-server.dto';
 
 @Controller('api')
 export class AuthserviceController {
 
-    constructor(private authService: AuthserviceService) { }
+    constructor(private authService: AuthserviceService,
+        private readonly emailServerServices: EmailService
+    ) { }
 
     @Post('login')
     async login(@Body() body: { email: string; password: string }, @Res() res: Response) {
@@ -28,9 +32,10 @@ export class AuthserviceController {
     }
 
     @Post('register-profesor')
-    async registerProfessor(@Body() body: { nombre: string; correo: string, rut: string }, @Res() res: Response) {
+    async registerProfessor(@Body() createEmailServerDto: CreateEmailServerDto, @Res() res: Response) {
         try {
-            const message = await this.authService.registerProfessor(body.nombre, body.correo, body.rut);
+            // await this.emailServerServices.sendMailSandBox(createEmailServerDto)
+            const message = await this.authService.registerProfessor(createEmailServerDto);
             res.status(HttpStatus.OK).send(message);
         } catch (error) {
             console.error('Error en el servidor:', error);

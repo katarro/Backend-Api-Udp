@@ -5,6 +5,9 @@ import { ApplicationsModule } from './postulations/applications.module';
 import { AdministratorModule } from './administrator/administrator.module';
 import { AuthserviceModule } from './authService/authservice.module';
 import { Periodo } from './entities/modelPeriodo';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
+
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -18,19 +21,38 @@ import { Periodo } from './entities/modelPeriodo';
       autoLoadModels: true,
       synchronize: true,
       pool: {
-        max: 3, 
-        min: 0, 
-        acquire: 30000,  
-        idle: 10000, 
+        max: 3,
+        min: 0,
+        acquire: 30000,
+        idle: 10000,
       },
     }),
-    // Agregar los modulos de otros servicios
+
+    MailerModule.forRoot({
+      transport: {
+        host: String(process.env.MAIL_HOST),
+        port: Number(process.env.MAIL_PORT),
+        secure: false,
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS,
+        },
+      },
+      template: {
+        dir: __dirname + './template/notification',
+        adapter: new PugAdapter({ inlineCssEnabled: true }),
+        options: {
+          strict: true,
+        },
+      },
+    }),
+
     ApplicationsModule,
     AdministratorModule,
     Periodo,
-    AuthserviceModule
+    AuthserviceModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {}
